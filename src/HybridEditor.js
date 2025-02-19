@@ -18,19 +18,31 @@ const HybridEditor = () => {
     if (!quillRef.current) {
       const toolbarOptions = [
         [{ font: [] }, { size: [] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ color: [] }, { background: [] }],
+        [
+          "bold",
+          "italic",
+          "underline",
+          //  "strike"
+        ],
+        [
+          { color: [] },
+          //  { background: [] }
+        ],
         [{ script: "sub" }, { script: "super" }],
-        [{ header: [1, 2, 3, false] }, "blockquote", "code-block"],
+        [
+          // { header: [1, 2, 3, false] }
+          // , "blockquote"  ,
+          "code-block",
+        ],
         [
           { list: "ordered" },
           { list: "bullet" },
-          { indent: "-1" },
-          { indent: "+1" },
+          // { indent: "-1" },
+          // { indent: "+1" },
         ],
-        [{ direction: "rtl" }, { align: [] }],
+        [{ align: [] }],
         ["link", "image", "video", "formula"],
-        ["clean"],
+        // ["clean"],
       ];
 
       quillRef.current = new Quill("#hybrid-editor", {
@@ -59,7 +71,9 @@ const HybridEditor = () => {
         index: quillRef.current.getLength(),
       };
 
-      quillRef.current.insertText(range.index, `\\(${mathLatex}\\)`, "user");
+      const mathSpan = `<span class="mathquill-render" data-latex="${mathLatex}">\\(${mathLatex}\\)</span>`;
+
+      quillRef.current.clipboard.dangerouslyPasteHTML(range.index, mathSpan);
 
       quillRef.current.setSelection(range.index + mathLatex.length + 4, 0);
 
@@ -67,6 +81,12 @@ const HybridEditor = () => {
       setMathLatex("");
     }
   };
+
+  useEffect(() => {
+    if (window.MathJax) {
+      window.MathJax.typeset(); // Render LaTeX with MathJax
+    }
+  }, [content]);
 
   const handleSubmit = () => {
     console.log("Submitted Content:", content);
